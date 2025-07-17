@@ -1,9 +1,8 @@
-import Image from "next/image";
-
+g
 export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <h1 className="text-3xl">hi :)</h1>
+      <h1 className="text-3xl">hio :)</h1>
     </div>
   );
 }
