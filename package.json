@@ -2,6 +2,19 @@
   "name": "token_vitae_beta",
   "version": "0.1.0",
   "private": true,
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).",
+  "homepage": "https://github.com/jallpatell/token_vitae_betae#readme",
+  "bugs": {
+    "url": "https://github.com/jallpatell/token_vitae_betae/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jallpatell/token_vitae_betae.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,13 +22,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "alchemy-sdk": "^3.6.1",
     "bullmq": "^5.56.4",
     "express": "^5.1.0",
+    "ioredis": "^5.6.1",
     "mongodb": "^6.17.0",
+    "mongoose": "^8.16.4",
     "next": "15.4.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "redis": "^5.6.0"
+    "redis": "^5.6.0",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -1,8 +1,9 @@
-g
+import PriceQueryForm from '../components/PriceQueryForm';
+
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <h1 className="text-3xl">hio :)</h1>
-    </div>
+    <main className="min-h-screen flex items-center justify-center bg-gray-100">
+      <PriceQueryForm />
+    </main>
   );
 }
