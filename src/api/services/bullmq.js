@@ -1,4 +1,4 @@
-const { Queue, Worker } = require('bullmq');
+import { Queue, Worker } from 'bullmq';
 
 const connection = {
   connection: {
@@ -8,12 +8,10 @@ const connection = {
   },
 };
 
-const scheduleQueue = new Queue('schedule', connection);
+export const scheduleQueue = new Queue('schedule', connection);
 
-const scheduleWorker = new Worker('schedule', async job => {
+export const scheduleWorker = new Worker('schedule', async job => {
   // For now, just log the job data
   console.log('[BullMQ Worker] Processing job:', job.data);
   // TODO: Implement price history fetching and caching
-}, connection);
-
-module.exports = { scheduleQueue, scheduleWorker }; 
+}, connection); 

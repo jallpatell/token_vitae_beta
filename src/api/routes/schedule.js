@@ -1,6 +1,5 @@
-const express = require('express');
-const router = express.Router();
-const { scheduleQueue } = require('../services/bullmq');
+import express from 'express';
+import { scheduleQueue } from '../services/bullmq.js';
 
 // --- Security Middleware ---
 const rateLimiters = {};
@@ -27,7 +26,7 @@ function apiKeyCheck(req, res, next) {
   next();
 }
 
-// Apply security middleware
+const router = express.Router();
 router.use(rateLimiter);
 router.use(apiKeyCheck);
 
@@ -56,4 +55,4 @@ router.post('/', async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 

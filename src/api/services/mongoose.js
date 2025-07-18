@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const connectMongo = async () => {
+export const connectMongo = async () => {
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/token_vitae';
   try {
     await mongoose.connect(uri, {
@@ -18,4 +18,4 @@ mongoose.connection.on('error', err => {
   console.error('MongoDB error:', err);
 });
 
-module.exports = { connectMongo, mongoose }; 
+export { mongoose }; 

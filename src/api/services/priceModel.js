@@ -1,4 +1,4 @@
-const { mongoose } = require('./mongoose');
+import { mongoose } from './mongoose.js';
 
 const priceSchema = new mongoose.Schema({
   token: { type: String, required: true },
@@ -12,4 +12,4 @@ priceSchema.index({ token: 1, network: 1, date: 1 }, { unique: true });
 
 const Price = mongoose.model('Price', priceSchema);
 
-module.exports = Price; 
+export default Price; 

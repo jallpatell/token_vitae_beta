@@ -1,8 +1,18 @@
-const express = require('express');
-const router = express.Router();
-const redis = require('../services/redis');
-const Price = require('../services/priceModel');
-const { fetchTokenPrice } = require('../services/alchemy');
+import express from 'express';
+import redis from '../services/redis.js';
+import Price from '../services/priceModel.js';
+import { fetchTokenPrice } from '../services/alchemy.js';
+
+// Helper: normalize timestamp to UTC seconds
+function normalizeTimestamp(ts) {
+  return Math.floor(Number(ts));
+}
+
+// Linear interpolation
+function interpolate(ts_query, ts_before, price_before, ts_after, price_after) {
+  const ratio = (ts_query - ts_before) / (ts_after - ts_before);
+  return price_before + (price_after - price_before) * ratio;
+}
 
 // --- Security Middleware ---
 const rateLimiters = {};
@@ -29,22 +39,11 @@ function apiKeyCheck(req, res, next) {
   next();
 }
 
-// Helper: normalize timestamp to UTC seconds
-function normalizeTimestamp(ts) {
-  return Math.floor(Number(ts));
-}
-
-// Linear interpolation
-function interpolate(ts_query, ts_before, price_before, ts_after, price_after) {
-  const ratio = (ts_query - ts_before) / (ts_after - ts_before);
-  return price_before + (price_after - price_before) * ratio;
-}
-
-// Apply security middleware
+const router = express.Router();
 router.use(rateLimiter);
 router.use(apiKeyCheck);
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { token, network, timestamp } = req.body;
     // Strict parameter validation
@@ -111,4 +110,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 
