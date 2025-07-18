@@ -1,4 +1,4 @@
-
+ 
 "use client";
 import React, { useState } from 'react';
 import { usePriceStore } from '../state/usePriceStore';
@@ -7,6 +7,8 @@ const NETWORKS = [
   { label: 'Ethereum', value: 'ethereum' },
   { label: 'Polygon', value: 'polygon' },
 ];
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
 
 export default function PriceQueryForm() {
   const [token, setToken] = useState('');
@@ -31,8 +33,8 @@ export default function PriceQueryForm() {
     setIsLoading(true);
     setPriceData(null);
     try {
-      const res = await fetch('/api/price', {
-        method: 'GET',
+      const res = await fetch(`${API_BASE}/price`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': process.env.NEXT_PUBLIC_API_KEY || '',
@@ -56,7 +58,7 @@ export default function PriceQueryForm() {
     if (err) return setError(err);
     setIsLoading(true);
     try {
-      const res = await fetch('/api/schedule', {
+      const res = await fetch(`${API_BASE}/schedule`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +77,7 @@ export default function PriceQueryForm() {
   };
 
   return (
-    <form className="max-w-md mx-auto p-6 bg-white rounded shadow space-y-4" onSubmit={handleQuery}>
+    <form className="max-w-md mx-auto p-6 bg-black rounded shadow space-y-4" onSubmit={handleQuery}>
       <div>
         <label className="block font-medium mb-1">Token Address</label>
         <input
