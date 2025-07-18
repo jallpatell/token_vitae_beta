@@ -1,5 +1,6 @@
 import { getContractCreationBlock, fetchTokenPrice } from './alchemy.js';
 import Price from './priceModel.js';
+import redis from './redis.js';
 
 // Helper: get all daily midnight IST unix timestamps from start to today
 function generateDailyMidnightISTTimestamps(startTimestamp) {
@@ -77,6 +78,9 @@ export async function runHistoryFetchJob(token, network) {
           },
           { upsert: true }
         );
+        // Also cache in Redis
+        const cacheKey = `price:${token}:${network}:${ts}`;
+        await redis.set(cacheKey, price, 'EX', 300);
       }
     }));
     // Respect Alchemy rate limit

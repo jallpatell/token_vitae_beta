@@ -8,9 +8,9 @@ function normalizeTimestamp(ts) {
   return Math.floor(Number(ts));
 }
 
-// Linear interpolation
-function interpolate(ts_query, ts_before, price_before, ts_after, price_after) {
-  const ratio = (ts_query - ts_before) / (ts_after - ts_before);
+// Linear interpolation (matches user formula)
+function interpolate(ts_q, ts_before, price_before, ts_after, price_after) {
+  const ratio = (ts_q - ts_before) / (ts_after - ts_before);
   return price_before + (price_after - price_before) * ratio;
 }
 
@@ -74,7 +74,12 @@ router.post('/', async (req, res) => {
     }
 
     // 3. Alchemy fetch
-    const alchemyPrice = await fetchTokenPrice(token, network, ts);
+    let alchemyPrice = null;
+    try {
+      alchemyPrice = await fetchTokenPrice(token, network, ts);
+    } catch (e) {
+      alchemyPrice = null;
+    }
     if (alchemyPrice !== null && typeof alchemyPrice === 'number') {
       // Save to MongoDB and Redis
       await Price.create({ token, network, date: ts, price: alchemyPrice, source: 'alchemy' });
@@ -88,7 +93,7 @@ router.post('/', async (req, res) => {
     const after = await Price.findOne({ token, network, date: { $gt: ts } }).sort({ date: 1 });
 
     if (before && after) {
-      // Interpolate
+      // Interpolate using user formula
       const interpolated = interpolate(ts, before.date, before.price, after.date, after.price);
       // Save interpolated result
       await Price.create({ token, network, date: ts, price: interpolated, source: 'interpolated' });

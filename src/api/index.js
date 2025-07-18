@@ -2,18 +2,20 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { Queue, Worker } from 'bullmq';
 import Redis from 'ioredis';
+import cors from 'cors';
 
 // Service and route placeholders (to be implemented)
 import priceRouter from './routes/price.js';
 import scheduleRouter from './routes/schedule.js';
 import historyRouter from './routes/history.js';
 
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(bodyParser.json());
-
+app.use(cors())
 // Mount routes
 app.use('/price', priceRouter);
 app.use('/schedule', scheduleRouter);
