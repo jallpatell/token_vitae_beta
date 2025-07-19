@@ -95,3 +95,156 @@ ARCH
   npm init -y
   npm install 
 </pre>
+
+
+
+
+---
+
+### 🔐 3. Environment Variables
+
+#### 📁 Backend `.env`
+
+<prev>
+
+PORT=3001
+API_KEY=my_super_secret_key
+
+MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.mongodb.net/tokenoracle?retryWrites=true&w=majority
+REDIS_URL=redis://localhost:6379
+
+ALCHEMY_API_KEY_ETHEREUM=your_eth_key
+ALCHEMY_API_KEY_POLYGON=your_polygon_key
+
+</prev>
+
+> 🔐 Do not commit your `.env` file to Git!
+
+#### 📁 Frontend `.env.local`
+
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_KEY=my_super_secret_key
+
+text
+
+---
+
+### 🖥️ 4. Run the App Locally
+
+#### 🔙 Backend (API + Queue Worker)
+
+<prev>
+cd backend
+npm start # or: nodemon index.js
+
+</prev>
+
+
+#### 🔁 Start price history job worker
+node src/workers/bullmq.js
+
+
+
+#### 🎨 Frontend (Next.js)
+
+<prev>
+cd frontend
+npm run dev
+
+</prev>
+
+
+
+---
+
+## 🔌 API Endpoints
+
+### 📥 `POST /price`
+
+Returns the price of a token at a given timestamp.
+
+Request:
+<prev>
+{
+"token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+"network": "ethereum", // or polygon
+"timestamp": 1678901234
+}
+
+Response:
+{
+"price": 0.9997,
+"source": "alchemy" | "interpolated" | "cache" | "db"
+}
+
+</prev>
+
+---
+
+### 📥 `POST /schedule`
+
+Schedules a full historical fetch from token creation to now.
+
+Request:
+
+<prev>
+{
+"token": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+"network": "polygon"
+}
+
+Response:
+{
+"status": "scheduled"
+}
+
+</prev>
+
+---
+
+## ✅ Test Cases
+
+### 1. Exact Match Price
+
+<prev>
+  
+curl -X POST http://localhost:3001/price
+-H "Content-Type: application/json"
+-H "x-api-key: your_api_key"
+-d '{
+"token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+"network": "ethereum",
+"timestamp": 1678901234
+}'
+
+</prev>
+
+### 2. Interpolation Needed
+
+<prev>
+curl -X POST http://localhost:3001/price
+-H "Content-Type: application/json"
+-H "x-api-key: your_api_key"
+-d '{
+"token": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+"network": "polygon",
+"timestamp": 1679032800
+}'
+
+</prev?
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes:
+- Please open an issue first
+- Explain what you want to add or improve.
+
+---
+
+## 🙋‍♂️ Questions?
+
+- Raise an issue here on GitHub
+
+---
