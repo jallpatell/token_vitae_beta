@@ -1,4 +1,4 @@
-# 🧠 Historical Token Price Oracle — Interpolation Engine
+# 📊 Historical Token Price Oracle — Interpolation Engine
 
 A full-stack dApp that allows querying accurate historical token prices (on Ethereum or Polygon) at a specific timestamp — even if exact price data is missing — using interpolation and caching for performance.
 
@@ -48,5 +48,50 @@ This system is built using **Next.js**, **Node.js/Express**, **MongoDB**, **Redi
   - Robust, restart-safe job queue for scheduled historical fetches.
 
 ---
+ARCH
+---
 
 
+## 🛠 Technologies Used
+
+| Layer        | Tech                         |
+|--------------|------------------------------|
+| Frontend     | Next.js, React, Tailwind CSS |
+| State Mgmt   | Zustand                      |
+| Backend      | Node.js, Express.js          |
+| Queue        | BullMQ + Redis               |
+| Database     | MongoDB (Mongoose)           |
+| Cache        | Redis                        |
+| Web3         | Alchemy SDK                  |
+| Misc         | dotenv, cors, axios, etc.    |
+
+---
+
+## 🔧 Getting Started
+
+### 🧱 Prerequisites
+
+- Node.js (v18+ recommended)
+- Yarn or npm
+- MongoDB (local or Atlas)
+- Redis (local or Redis Cloud)
+- Alchemy API Key
+
+---
+
+### ⚙️ 1. Clone the Repository
+
+<pre>```bash
+  git clone https://github.com/your_username/token-price-oracle.git
+  cd token-price-oracle  
+```</pre>
+
+
+---
+
+### 📦 2. Install Dependencies
+
+<pre>```bash
+  npm init -y
+  npm install 
+```</pre>
