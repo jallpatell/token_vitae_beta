@@ -81,17 +81,17 @@ ARCH
 
 ### ⚙️ 1. Clone the Repository
 
-<pre>```bash
+<pre>
   git clone https://github.com/your_username/token-price-oracle.git
   cd token-price-oracle  
-```</pre>
+</pre>
 
 
 ---
 
 ### 📦 2. Install Dependencies
 
-<pre>```bash
+<pre>
   npm init -y
   npm install 
-```</pre>
+</pre>
