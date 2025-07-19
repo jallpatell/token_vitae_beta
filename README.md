@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🧠 Historical Token Price Oracle — Interpolation Engine
 
-## Getting Started
+A full-stack dApp that allows querying accurate historical token prices (on Ethereum or Polygon) at a specific timestamp — even if exact price data is missing — using interpolation and caching for performance.
 
-First, run the development server:
+This system is built using **Next.js**, **Node.js/Express**, **MongoDB**, **Redis**, **BullMQ**, and **Alchemy SDK**, and includes background workers for fetching entire price history from a token's creation date.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
+## 🚀 Demo
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📺 [Watch the Demo on YouTube](#)  
+🌐 [Live App (Vercel)](https://yourfrontend.vercel.app) – for testing  
+📦 [API Docs](https://yourbackend.com/docs)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📑 Table of Contents
 
-## Learn More
+- [Features](#features)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Folder Structure](#folder-structure)
+- [License](#license)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✨ Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- 🔍 **Historical Token Price Lookup**
+  - Provide token address, network ("ethereum" or "polygon"), and a timestamp.
+  - Returns exact or interpolated price.
 
-## Deploy on Vercel
+- 📈 **Full Historical Price Scheduler**
+  - Schedule a background fetch from token creation to today.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- 🧠 **Interpolation Engine**
+  - Calculates interpolated price when exact market data is unavailable.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 🔁 **Caching (Redis)**
+  - Low latency for repeated queries with automatic TTL.
+
+- 🗃️ **Persistent Storage (MongoDB)**
+  - Stores token price data for future analytics and charting.
+
+- 🛠️ **Queue Workers (BullMQ)**
+  - Robust, restart-safe job queue for scheduled historical fetches.
+
+---
+
+
