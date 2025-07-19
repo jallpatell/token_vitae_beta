@@ -36,7 +36,7 @@ function rateLimiter(req, res, next) {
 function apiKeyCheck(req, res, next) {
   const apiKey = req.headers['x-api-key'];
   if (!apiKey || apiKey !== process.env.API_KEY) {
-    return res.status(401).json({ error: 'Unauthorized: INVALID API key' });
+    return res.status(401).json({ error: 'Unauthorized: Invalid API key' });
   }
   next();
 }
@@ -61,54 +61,40 @@ router.post('/', async (req, res) => {
     const ts = normalizeTimestamp(timestamp);
     const cacheKey = `price:${token}:${network}:${ts}`;
 
-    // 1. Redis cache lookup
+    // 1. Check Redis cache
     const cached = await redis.get(cacheKey);
     if (cached) {
-      const price = parseFloat(cached);
-      return res.json({ price, source: 'cache' });
+      return res.json({ price: parseFloat(cached), source: 'cache' });
     }
 
-    // 2. MongoDB lookup
-    let dbDoc = await Price.findOne({ token, network, date: ts });
-    if (dbDoc) {
-      await redis.set(cacheKey, dbDoc.price, 'EX', 300); // 5 min TTL
-      return res.json({ price: dbDoc.price, source: 'db' });
-    }
-
-    // 3. Alchemy fetch
-    let alchemyPrice = null;
+    // 2. Query Alchemy
+    let price = null;
     try {
-      alchemyPrice = await fetchTokenPrice(token, network, ts);
+      price = await fetchTokenPrice(token, network, ts);
     } catch (e) {
-      alchemyPrice = null;
+      price = null;
     }
-    if (alchemyPrice !== null && typeof alchemyPrice === 'number') {
-      // Save to MongoDB and Redis
-      await Price.create({ token, network, date: ts, price: alchemyPrice, source: 'alchemy' });
-      await redis.set(cacheKey, alchemyPrice, 'EX', 300);
-      return res.json({ price: alchemyPrice, source: 'alchemy' });
+    if (price !== null && typeof price === 'number') {
+      await Price.create({ token, network, date: ts, price, source: 'alchemy' });
+      await redis.set(cacheKey, price, 'EX', 300);
+      return res.json({ price, source: 'alchemy' });
     }
 
-    // 4. Interpolation logic
-    // Find nearest before and after prices
+    // 3. Interpolation if price is missing
     const before = await Price.findOne({ token, network, date: { $lt: ts } }).sort({ date: -1 });
     const after = await Price.findOne({ token, network, date: { $gt: ts } }).sort({ date: 1 });
 
     if (before && after) {
-      // Interpolate using user formula
       const interpolated = interpolate(ts, before.date, before.price, after.date, after.price);
-      // Save interpolated result
       await Price.create({ token, network, date: ts, price: interpolated, source: 'interpolated' });
       await redis.set(cacheKey, interpolated, 'EX', 300);
       return res.json({ price: interpolated, source: 'interpolated' });
     } else if (before || after) {
-      // Only one side exists, return as approximate
       const best = before || after;
       await Price.create({ token, network, date: ts, price: best.price, source: 'approximate' });
       await redis.set(cacheKey, best.price, 'EX', 300);
       return res.json({ price: best.price, source: 'approximate' });
     } else {
-      // No data available
       return res.status(404).json({ error: 'No price data available for the requested timestamp.' });
     }
   } catch (err) {

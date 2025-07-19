@@ -8,6 +8,25 @@ const rateLimiters = {};
 const RATE_LIMIT = 10; // max requests per 60s per IP
 const WINDOW_MS = 60 * 1000;
 
+
+
+// ✅ scheduleQueue.js (keep this async IIFE)
+(async () => {
+  await scheduleQueue.add(
+    'daily-fetcher',
+    {},
+    {
+      repeat: {
+        cron: '30 18 * * *',
+        tz: 'Asia/Kolkata',
+      },
+      jobId: 'daily-fetcher-job',
+    }
+  );
+})();
+
+
+
 function rateLimiter(req, res, next) {
   const ip = req.ip;
   const now = Date.now();

@@ -10,14 +10,13 @@ import dotenv from 'dotenv';
 import priceRouter from './routes/price.js';
 import scheduleRouter from './routes/schedule.js';
 import historyRouter from './routes/history.js';
-import { mongoose, connectMongo } from './services/mongoose.js';
+
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 
-connectMongo();
 // Middleware
 app.use(bodyParser.json());
 app.use(cors())

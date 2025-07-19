@@ -9,7 +9,7 @@ const connection = {
   },
 };
 
-export const scheduleQueue = new Queue('schedule', connection);
+export const scheduleQueue = new Queue('schedule', { connection });
 
 // List of tokens/networks to track (can be loaded from DB/config)
 const trackedTokens = [

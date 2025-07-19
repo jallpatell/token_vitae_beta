@@ -1,7 +1,8 @@
 import { getContractCreationBlock, fetchTokenPrice } from './alchemy.js';
 import Price from './priceModel.js';
 import redis from './redis.js';
-import { scheduleQueue } from './bullmq.js';
+
+
 
 // Helper: get all daily midnight IST unix timestamps from start to today
 function generateDailyMidnightISTTimestamps(startTimestamp) {
@@ -92,17 +93,3 @@ export async function runHistoryFetchJob(token, network) {
     if (i + BATCH_SIZE < timestamps.length) await sleep(1000);
   }
 }
-
-// Schedule a repeatable job for 12am IST every day
-// 12am IST = 6:30pm UTC (the day before)
-await scheduleQueue.add(
-  'daily-fetcher',
-  {}, // job data (can be empty, or include a list of tokens/networks)
-  {
-    repeat: {
-      cron: '30 18 * * *', // 6:30pm UTC = 12:00am IST
-      tz: 'Asia/Kolkata'
-    },
-    jobId: 'daily-fetcher-job'
-  }
-); 
