@@ -16,7 +16,8 @@ export default function SideNav() {
   const handleNav = (id) => {
     if (typeof window !== "undefined") {
       document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      setOpen(false);
+      // Only close sidebar on mobile
+      if (window.innerWidth < 768) setOpen(false);
     }
   };
 
