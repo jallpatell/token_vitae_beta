@@ -105,7 +105,7 @@ ARCH
 
 #### 📁 Backend `.env`
 
-<prev>
+<pre>
 
 PORT=3001
 API_KEY=my_super_secret_key
@@ -116,15 +116,15 @@ REDIS_URL=redis://localhost:6379
 ALCHEMY_API_KEY_ETHEREUM=your_eth_key
 ALCHEMY_API_KEY_POLYGON=your_polygon_key
 
-</prev>
+</pre>
 
 > 🔐 Do not commit your `.env` file to Git!
 
 #### 📁 Frontend `.env.local`
-
+<pre>
 NEXT_PUBLIC_API_URL=http://localhost:3001
 NEXT_PUBLIC_API_KEY=my_super_secret_key
-
+</pre>
 text
 
 ---
@@ -133,11 +133,11 @@ text
 
 #### 🔙 Backend (API + Queue Worker)
 
-<prev>
+<pre>
 cd backend
 npm start # or: nodemon index.js
 
-</prev>
+</pre>
 
 
 #### 🔁 Start price history job worker
@@ -147,11 +147,11 @@ node src/workers/bullmq.js
 
 #### 🎨 Frontend (Next.js)
 
-<prev>
+<pre>
 cd frontend
 npm run dev
 
-</prev>
+</pre>
 
 
 
@@ -164,7 +164,7 @@ npm run dev
 Returns the price of a token at a given timestamp.
 
 Request:
-<prev>
+<pre>
 {
 "token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
 "network": "ethereum", // or polygon
@@ -177,7 +177,7 @@ Response:
 "source": "alchemy" | "interpolated" | "cache" | "db"
 }
 
-</prev>
+</pre>
 
 ---
 
@@ -187,7 +187,7 @@ Schedules a full historical fetch from token creation to now.
 
 Request:
 
-<prev>
+<pre>
 {
 "token": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
 "network": "polygon"
@@ -198,7 +198,7 @@ Response:
 "status": "scheduled"
 }
 
-</prev>
+</pre>
 
 ---
 
@@ -206,7 +206,7 @@ Response:
 
 ### 1. Exact Match Price
 
-<prev>
+<pre>
   
 curl -X POST http://localhost:3001/price
 -H "Content-Type: application/json"
@@ -217,11 +217,11 @@ curl -X POST http://localhost:3001/price
 "timestamp": 1678901234
 }'
 
-</prev>
+</pre>
 
 ### 2. Interpolation Needed
 
-<prev>
+<pre>
 curl -X POST http://localhost:3001/price
 -H "Content-Type: application/json"
 -H "x-api-key: your_api_key"
@@ -231,7 +231,7 @@ curl -X POST http://localhost:3001/price
 "timestamp": 1679032800
 }'
 
-</prev?
+</pre>
 
 ---
 
