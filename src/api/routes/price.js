@@ -2,7 +2,9 @@ import express from 'express';
 import redis from '../services/redis.js';
 import Price from '../services/priceModel.js';
 import { fetchTokenPrice } from '../services/alchemy.js';
+import dotenv from 'dotenv';
 
+dotenv.config();
 // Helper: normalize timestamp to UTC seconds
 function normalizeTimestamp(ts) {
   return Math.floor(Number(ts));

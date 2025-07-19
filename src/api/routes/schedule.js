@@ -1,6 +1,8 @@
 import express from 'express';
 import { scheduleQueue } from '../services/bullmq.js';
+import dotenv from 'dotenv';
 
+dotenv.config();
 // --- Security Middleware ---
 const rateLimiters = {};
 const RATE_LIMIT = 10; // max requests per 60s per IP

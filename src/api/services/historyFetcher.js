@@ -1,6 +1,7 @@
 import { getContractCreationBlock, fetchTokenPrice } from './alchemy.js';
 import Price from './priceModel.js';
 import redis from './redis.js';
+import { scheduleQueue } from './bullmq.js';
 
 // Helper: get all daily midnight IST unix timestamps from start to today
 function generateDailyMidnightISTTimestamps(startTimestamp) {
@@ -30,13 +31,30 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Helper: upsert daily price in MongoDB
+async function storeDailyPrice({ token, network, date, price, source }) {
+  await Price.updateOne(
+    { token, network, date },
+    {
+      $set: {
+        token,
+        network,
+        date,
+        price,
+        source,
+      },
+    },
+    { upsert: true }
+  );
+}
+
 // Main orchestrator
 export async function runHistoryFetchJob(token, network) {
   // 1. Get contract creation block
   const creationBlock = await getContractCreationBlock(token, network);
   const creationTimestamp = Number(creationBlock.timestamp);
   // 2. Generate daily midnight IST timestamps
-  const timestamps = generateDailyMidnightISTTimestamps(creationTimestamp);
+  const timestamps = 1752905400;
   // 3. For each timestamp, fetch price (with batching)
   const BATCH_SIZE = 15;
   for (let i = 0; i < timestamps.length; i += BATCH_SIZE) {
@@ -64,20 +82,7 @@ export async function runHistoryFetchJob(token, network) {
         }
       }
       if (price !== null) {
-        await Price.updateOne(
-          { token, network, date: ts },
-          {
-            $set: {
-              token,
-              network,
-              date: ts,
-              time: '00:00',
-              price,
-              source,
-            },
-          },
-          { upsert: true }
-        );
+        await storeDailyPrice({ token, network, date: ts, price, source });
         // Also cache in Redis
         const cacheKey = `price:${token}:${network}:${ts}`;
         await redis.set(cacheKey, price, 'EX', 300);
@@ -86,4 +91,18 @@ export async function runHistoryFetchJob(token, network) {
     // Respect Alchemy rate limit
     if (i + BATCH_SIZE < timestamps.length) await sleep(1000);
   }
-} 
+}
+
+// Schedule a repeatable job for 12am IST every day
+// 12am IST = 6:30pm UTC (the day before)
+await scheduleQueue.add(
+  'daily-fetcher',
+  {}, // job data (can be empty, or include a list of tokens/networks)
+  {
+    repeat: {
+      cron: '30 18 * * *', // 6:30pm UTC = 12:00am IST
+      tz: 'Asia/Kolkata'
+    },
+    jobId: 'daily-fetcher-job'
+  }
+); 

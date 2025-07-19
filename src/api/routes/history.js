@@ -1,6 +1,8 @@
 import express from 'express';
 import { fetchTokenPrice } from '../services/alchemy.js';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const router = express.Router();
 
 // POST /history
