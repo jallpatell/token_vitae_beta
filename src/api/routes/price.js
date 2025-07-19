@@ -1,7 +1,7 @@
 import express from 'express';
 import redis from '../services/redis.js';
 import Price from '../services/priceModel.js';
-import { fetchTokenPrice, fetchChainlinkPrice, hasChainlinkFeed } from '../services/alchemy.js';
+import { fetchCoinGeckoPrice, getContractCreationBlock } from '../services/alchemy.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -49,6 +49,7 @@ router.use(apiKeyCheck);
 router.post('/', async (req, res) => {
   try {
     const { token, network, timestamp } = req.body;
+
     // Strict parameter validation
     if (!token || typeof token !== 'string' || !/^0x[a-fA-F0-9]{40,}$/.test(token)) {
       return res.status(400).json({ error: 'Valid token address required' });
