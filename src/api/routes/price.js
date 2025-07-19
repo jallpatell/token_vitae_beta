@@ -1,7 +1,7 @@
 import express from 'express';
 import redis from '../services/redis.js';
 import Price from '../services/priceModel.js';
-import { fetchTokenPrice } from '../services/alchemy.js';
+import { fetchTokenPrice, fetchChainlinkPrice, hasChainlinkFeed } from '../services/alchemy.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -45,7 +45,8 @@ const router = express.Router();
 router.use(rateLimiter);
 router.use(apiKeyCheck);
 
-router.post('/price', async (req, res) => {
+// Fix: mount at /, not /price
+router.post('/', async (req, res) => {
   try {
     const { token, network, timestamp } = req.body;
     // Strict parameter validation
@@ -67,23 +68,38 @@ router.post('/price', async (req, res) => {
       return res.json({ price: parseFloat(cached), source: 'cache' });
     }
 
-    // 2. Query Alchemy
+    // 2. Try Chainlink if supported
     let price = null;
-    try {
-      price = await fetchTokenPrice(token, network, ts);
-    } catch (e) {
-      price = null;
-    }
-    if (price !== null && typeof price === 'number') {
-      await Price.create({ token, network, date: ts, price, source: 'alchemy' });
-      await redis.set(cacheKey, price, 'EX', 300);
-      return res.json({ price, source: 'alchemy' });
+    let source = null;
+    if (hasChainlinkFeed(token, network)) {
+      try {
+        price = await fetchChainlinkPrice(token, network, ts);
+        source = 'chainlink';
+      } catch (e) {
+        price = null;
+      }
     }
 
-    // 3. Interpolation if price is missing
+    // 3. If Chainlink not available or fails, try Alchemy
+    if (price === null) {
+      try {
+        price = await fetchTokenPrice(token, network, ts);
+        source = 'alchemy';
+      } catch (e) {
+        price = null;
+      }
+    }
+
+    // 4. Store and return if found
+    if (price !== null && typeof price === 'number') {
+      await Price.create({ token, network, date: ts, price, source });
+      await redis.set(cacheKey, price, 'EX', 300);
+      return res.json({ price, source });
+    }
+
+    // 5. Interpolation if price is missing
     const before = await Price.findOne({ token, network, date: { $lt: ts } }).sort({ date: -1 });
     const after = await Price.findOne({ token, network, date: { $gt: ts } }).sort({ date: 1 });
-
     if (before && after) {
       const interpolated = interpolate(ts, before.date, before.price, after.date, after.price);
       await Price.create({ token, network, date: ts, price: interpolated, source: 'interpolated' });

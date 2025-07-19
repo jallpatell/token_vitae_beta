@@ -3,6 +3,8 @@ import { mainnet, polygon } from 'viem/chains';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import { ethers } from 'ethers';
+
 const ETHEREUM_RPC_URL = process.env.ALCHEMY_ETHEREUM_RPC_URL;
 const POLYGON_RPC_URL = process.env.ALCHEMY_POLYGON_RPC_URL;
 
@@ -10,6 +12,88 @@ const clients = {
   ethereum: createPublicClient({ chain: mainnet, transport: http(ETHEREUM_RPC_URL) }),
   polygon: createPublicClient({ chain: polygon, transport: http(POLYGON_RPC_URL) }),
 };
+
+// Chainlink feed mapping: { [network]: { [token]: feedAddress } }
+const CHAINLINK_FEEDS = {
+  ethereum: {
+    // ETH/USD
+    '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE': '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419',
+    // USDC/USD
+    '0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6',
+  },
+  polygon: {
+    // ETH/USD
+    '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619': '0xdf0Fb4e4F928d2dCB76f438575fDD8682386e13C',
+    // USDC/USD
+    '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174': '0xfeafcF0cd387E7e7D5cB7AaaC0C3F4E9bB1b5aB8',
+  },
+};
+
+const aggregatorV3InterfaceABI = [
+  {
+    "inputs": [{ "internalType": "uint80", "name": "_roundId", "type": "uint80" }],
+    "name": "getRoundData",
+    "outputs": [
+      { "internalType": "uint80", "name": "roundId", "type": "uint80" },
+      { "internalType": "int256", "name": "answer", "type": "int256" },
+      { "internalType": "uint256", "name": "startedAt", "type": "uint256" },
+      { "internalType": "uint256", "name": "updatedAt", "type": "uint256" },
+      { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "latestRoundData",
+    "outputs": [
+      { "internalType": "uint80", "name": "roundId", "type": "uint80" },
+      { "internalType": "int256", "name": "answer", "type": "int256" },
+      { "internalType": "uint256", "name": "startedAt", "type": "uint256" },
+      { "internalType": "uint256", "name": "updatedAt", "type": "uint256" },
+      { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
+export function hasChainlinkFeed(token, network) {
+  return Boolean(CHAINLINK_FEEDS[network] && CHAINLINK_FEEDS[network][token]);
+}
+
+export async function fetchChainlinkPrice(token, network, timestamp) {
+  const feedAddress = CHAINLINK_FEEDS[network]?.[token];
+  if (!feedAddress) throw new Error('No Chainlink feed for this token/network');
+  const provider = new ethers.providers.JsonRpcProvider(
+    network === 'ethereum' ? ETHEREUM_RPC_URL : POLYGON_RPC_URL
+  );
+  const priceFeed = new ethers.Contract(feedAddress, aggregatorV3InterfaceABI, provider);
+  // Binary search for roundId near timestamp
+  const latest = await priceFeed.latestRoundData();
+  let low = 1n;
+  let high = latest.roundId;
+  let best = latest;
+  while (low <= high) {
+    const mid = (low + high) / 2n;
+    try {
+      const round = await priceFeed.getRoundData(mid);
+      if (Number(round.updatedAt) === timestamp) return Number(round.answer) / 1e8;
+      if (Number(round.updatedAt) < timestamp) {
+        low = mid + 1n;
+        best = round;
+      } else {
+        high = mid - 1n;
+        if (Math.abs(Number(round.updatedAt) - timestamp) < Math.abs(Number(best.updatedAt) - timestamp)) {
+          best = round;
+        }
+      }
+    } catch (e) {
+      high = mid - 1n;
+    }
+  }
+  return Number(best.answer) / 1e8;
+}
 
 const UNISWAP_V3_FACTORY = {
   ethereum: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
