@@ -35,7 +35,7 @@ function rateLimiter(req, res, next) {
 
 function apiKeyCheck(req, res, next) {
   const apiKey = req.headers['x-api-key'];
-  if (!apiKey || apiKey !== process.env.API_KEY) {
+  if (apiKey !== process.env.API_KEY) {
     return res.status(401).json({ error: 'Unauthorized: Invalid API key' });
   }
   next();
@@ -45,7 +45,7 @@ const router = express.Router();
 router.use(rateLimiter);
 router.use(apiKeyCheck);
 
-router.post('/', async (req, res) => {
+router.post('/price', async (req, res) => {
   try {
     const { token, network, timestamp } = req.body;
     // Strict parameter validation

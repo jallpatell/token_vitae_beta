@@ -1,8 +1,6 @@
 import express from 'express';
 import { fetchTokenPrice } from '../services/alchemy.js';
-import dotenv from 'dotenv';
 
-dotenv.config();
 const router = express.Router();
 
 // POST /history
@@ -23,7 +21,7 @@ router.post('/', async (req, res) => {
     const history = [];
     for (let i = 9; i >= 0; i--) {
       const t = ts - i * 86400; // 86400 seconds in a day
-      // Use mock Alchemy fetch (returns 1.23 for even timestamps, null for odd)
+      // Use fetchTokenPrice to get price
       const price = await fetchTokenPrice(token, network, t);
       if (price !== null) {
         history.push({ timestamp: t, price });
