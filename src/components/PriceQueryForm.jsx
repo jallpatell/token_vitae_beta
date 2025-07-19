@@ -1,7 +1,7 @@
- 
 "use client";
 import React, { useState } from 'react';
 import { usePriceStore } from '../state/usePriceStore';
+import { FaHome, FaChartLine, FaCubes, FaMagic, FaEnvelope, FaBars, FaTimes } from "react-icons/fa";
 
 const NETWORKS = [
   { label: 'Ethereum', value: 'ethereum' },
@@ -9,7 +9,7 @@ const NETWORKS = [
 ];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
- 
+
 export default function PriceQueryForm() {
   const [token, setToken] = useState('');
   const [network, setNetwork] = useState(NETWORKS[0].value);
@@ -77,11 +77,15 @@ export default function PriceQueryForm() {
   };
 
   return (
-    <form className="max-w-md mx-auto p-6 bg-black rounded shadow space-y-4" onSubmit={handleQuery}>
+    <form
+      className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl border border-white/10 flex flex-col gap-4 max-w-md mx-auto"
+      onSubmit={handleQuery}
+    >
+      <h2 className="text-xl font-bold mb-2 text-white">Token Price Query</h2>
       <div>
-        <label className="block font-medium mb-1">Token Address</label>
+        <label className="block font-medium mb-1 text-gray-200">Token Address</label>
         <input
-          className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
+          className="w-full bg-black/30 border border-white/20 rounded px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 transition"
           value={token}
           onChange={e => setToken(e.target.value)}
           name="tokenAddress"
@@ -89,9 +93,9 @@ export default function PriceQueryForm() {
         />
       </div>
       <div>
-        <label className="block font-medium mb-1">Network</label>
+        <label className="block font-medium mb-1 text-gray-200">Network</label>
         <select
-          className="w-full border px-3 py-2 rounded"
+          className="w-full bg-black/30 border border-white/20 rounded px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 transition"
           value={network}
           onChange={e => setNetwork(e.target.value)}
           name="network"
@@ -100,9 +104,9 @@ export default function PriceQueryForm() {
         </select>
       </div>
       <div>
-        <label className="block font-medium mb-1">Timestamp</label>
+        <label className="block font-medium mb-1 text-gray-200">Timestamp</label>
         <input
-          className="w-full border px-3 py-2 rounded"
+          className="w-full bg-black/30 border border-white/20 rounded px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 transition"
           type="datetime-local"
           value={timestamp}
           onChange={e => setTimestamp(e.target.value)}
@@ -113,14 +117,14 @@ export default function PriceQueryForm() {
       <div className="flex space-x-2">
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          className="bg-blue-900 p-3 text-white font-bold py-2 rounded shadow hover:scale-105 transition"
           disabled={isLoading}
         >
           {isLoading ? 'Loading...' : 'Query Price'}
         </button>
         <button
           type="button"
-          className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50 hover:scale-105 transition"
           onClick={handleSchedule}
           disabled={isLoading}
         >
@@ -128,10 +132,10 @@ export default function PriceQueryForm() {
         </button>
       </div>
       {priceData && (
-        <div className="mt-4 p-3 bg-gray-50 rounded">
+        <div className="mt-4 p-3 bg-gray-50/10 rounded">
           {priceData.price !== null && (
-            <div className="text-lg font-bold">
-              Price: <span className="text-blue-700">${priceData.price}</span>
+            <div className="text-lg font-bold text-white">
+              Price: <span className="text-blue-300">${priceData.price}</span>
             </div>
           )}
           {priceData.source && (
@@ -152,4 +156,4 @@ export default function PriceQueryForm() {
       )}
     </form>
   );
-} 
+}

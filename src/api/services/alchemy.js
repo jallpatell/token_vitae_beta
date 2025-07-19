@@ -17,7 +17,7 @@ const COINGECKO_IDS = {
 };
 
 // Fetch historical price from CoinGecko
-export async function fetchCoinGeckoPrice(token, network, timestamp) {
+export async function fetchTokenPrice(token, network, timestamp) {
   const id = COINGECKO_IDS[network]?.[token];
   if (!id) throw new Error('No CoinGecko ID mapping for this token/network');
   // CoinGecko expects date as dd-mm-yyyy

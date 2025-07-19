@@ -54,12 +54,15 @@ export default function TokenHistory() {
   };
 
   return (
-    <form className="max-w-md mx-auto p-6 bg-black rounded shadow space-y-4 mt-8" onSubmit={handleFetch}>
-      <h2 className="text-xl font-bold mb-2">Token Price History</h2>
+    <form
+      className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl border border-white/10 flex flex-col gap-4 max-w-md mx-auto mt-8"
+      onSubmit={handleFetch}
+    >
+      <h2 className="text-xl font-bold mb-2 text-white">Token Price History</h2>
       <div>
-        <label className="block font-medium mb-1">Token Address</label>
+        <label className="block font-medium mb-1 text-gray-200">Token Address</label>
         <input
-          className="w-full border px-3 py-2 rounded focus:outline-none focus:ring"
+          className="w-full bg-black/30 border border-white/20 rounded px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 transition"
           value={token}
           onChange={e => setToken(e.target.value)}
           name="tokenAddress"
@@ -67,9 +70,9 @@ export default function TokenHistory() {
         />
       </div>
       <div>
-        <label className="block font-medium mb-1">Network</label>
+        <label className="block font-medium mb-1 text-gray-200">Network</label>
         <select
-          className="w-full border px-3 py-2 rounded"
+          className="w-full bg-black/30 border border-white/20 rounded px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 transition"
           value={network}
           onChange={e => setNetwork(e.target.value)}
           name="network"
@@ -78,9 +81,9 @@ export default function TokenHistory() {
         </select>
       </div>
       <div>
-        <label className="block font-medium mb-1">Timestamp</label>
+        <label className="block font-medium mb-1 text-gray-200">Timestamp</label>
         <input
-          className="w-full border px-3 py-2 rounded"
+          className="w-full bg-black/30 border border-white/20 rounded px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 transition"
           type="datetime-local"
           value={timestamp}
           onChange={e => setTimestamp(e.target.value)}
@@ -90,29 +93,29 @@ export default function TokenHistory() {
       {error && <div className="text-red-600 text-sm">{error}</div>}
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 w-full"
+        className="bg-blue-900 text-white hover::bg-blue-800 font-bold py-2 rounded shadow hover:scale-105 transition"
         disabled={isLoading}
       >
         {isLoading ? 'Loading...' : 'Fetch History'}
       </button>
       {history && (
         <div className="mt-4">
-          <h3 className="font-semibold mb-2">Results</h3>
+          <h3 className="font-semibold mb-2 text-white">Results</h3>
           {history.length === 0 ? (
             <div className="text-gray-500">No history found.</div>
           ) : (
-            <table className="w-full text-sm border">
+            <table className="w-full text-sm border border-white/10 bg-black/20 rounded-lg overflow-hidden">
               <thead>
-                <tr className="bg-gray-100">
-                  <th className="p-2 border">Timestamp</th>
-                  <th className="p-2 border">Price</th>
+                <tr className="bg-gray-900/60">
+                  <th className="p-2 border border-white/10 text-white">Timestamp</th>
+                  <th className="p-2 border border-white/10 text-white">Price</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((h, i) => (
-                  <tr key={i}>
-                    <td className="p-2 border">{new Date(h.timestamp * 1000).toLocaleString()}</td>
-                    <td className="p-2 border">${h.price}</td>
+                  <tr key={i} className="hover:bg-blue-900/20 transition">
+                    <td className="p-2 border border-white/10 text-gray-200">{new Date(h.timestamp * 1000).toLocaleString()}</td>
+                    <td className="p-2 border border-white/10 text-blue-300 font-semibold">${h.price}</td>
                   </tr>
                 ))}
               </tbody>
@@ -122,4 +125,4 @@ export default function TokenHistory() {
       )}
     </form>
   );
-} 
+}

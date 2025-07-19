@@ -1,7 +1,7 @@
 import express from 'express';
 import redis from '../services/redis.js';
 import Price from '../services/priceModel.js';
-import { fetchCoinGeckoPrice, getContractCreationBlock } from '../services/alchemy.js';
+import { getPriceByTokenAndTimestamp } from '../services/priceResolver.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -69,36 +69,15 @@ router.post('/', async (req, res) => {
       return res.json({ price: parseFloat(cached), source: 'cache' });
     }
 
-    // 2. Try Chainlink if supported
-    let price = null;
-    let source = null;
-    if (hasChainlinkFeed(token, network)) {
-      try {
-        price = await fetchChainlinkPrice(token, network, ts);
-        source = 'chainlink';
-      } catch (e) {
-        price = null;
-      }
-    }
-
-    // 3. If Chainlink not available or fails, try Alchemy
-    if (price === null) {
-      try {
-        price = await fetchTokenPrice(token, network, ts);
-        source = 'alchemy';
-      } catch (e) {
-        price = null;
-      }
-    }
-
-    // 4. Store and return if found
+    // 2. Use modular resolver
+    const price = await getPriceByTokenAndTimestamp(token, network, ts);
     if (price !== null && typeof price === 'number') {
-      await Price.create({ token, network, date: ts, price, source });
+      await Price.create({ token, network, date: ts, price, source: 'modular' });
       await redis.set(cacheKey, price, 'EX', 300);
-      return res.json({ price, source });
+      return res.json({ price, source: 'modular' });
     }
 
-    // 5. Interpolation if price is missing
+    // 3. Interpolation if price is missing (as before)
     const before = await Price.findOne({ token, network, date: { $lt: ts } }).sort({ date: -1 });
     const after = await Price.findOne({ token, network, date: { $gt: ts } }).sort({ date: 1 });
     if (before && after) {
@@ -119,5 +98,8 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Catch-all for non-POST requests
+router.all('*', (req, res) => res.status(405).json({ error: 'Method Not Allowed' }));
 
 export default router; 
